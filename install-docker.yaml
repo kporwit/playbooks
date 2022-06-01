@@ -45,5 +45,3 @@
         name: "{{ user_name }}"
         groups: docker
         append: yes
-    - name: activate group changes
-      shell: newgrp docker
