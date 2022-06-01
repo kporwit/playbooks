@@ -1,0 +1,37 @@
+---
+- name: install kubeadm utility
+  hosts: all
+  tasks:
+    - name: install kubeadm prerequisites
+      become: yes
+      apt:
+        name: 
+          - apt-transport-https
+          - ca-certificates 
+          - curl 
+          - lsb-release
+        update_cache: yes
+    - name: add keyrings path
+      become: yes
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+    - name: remove exisitng Google public key
+      become: yes
+      file: 
+        path: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+        state: absent
+    - name: add Google cloud public key
+      become: yes
+      shell: sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    - name: set up k8s repository
+      become: yes
+      shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    - name: install kubelet, kubeadm and kubectl
+      become: yes
+      apt:
+        name: 
+          - kubelet={{ kubelet_version }}
+          - kubeadm={{ kubeadm_version }}
+          - kubectl={{ kubectl_version }}
+        update_cache: yes
