@@ -1,0 +1,63 @@
+---
+- name: install docker and kubeadm prerequisites
+  apt:
+    name: 
+      - apt-transport-https
+      - ca-certificates 
+      - curl 
+      - gnupg 
+      - lsb-release
+    update_cache: yes
+
+- name: add keyrings path
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+
+- name: remove exisitng docker/kubeadm GPG key
+  file: 
+    path: "/etc/apt/keyrings/{{ item }}"
+    state: absent
+  with_items:
+    - docker.gpg
+    - kubernetes-archive-keyring.gpg
+
+- name: add docker GPG key
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+- name: add Google cloud public key
+  shell: curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+- name: set up docker repository
+  shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+- name: set up k8s repository
+  shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+- name: install docker engine
+  apt:
+    name: 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    update_cache: yes
+
+- name: create docker group
+  group:
+    name: docker
+    state: present
+
+- name: add user to the docker group
+  user:
+    name: "{{ user_name }}"
+    groups: docker
+    append: yes
+
+- name: install kubelet, kubeadm and kubectl
+  apt:
+    name: 
+      - kubelet={{ kubelet_version }}
+      - kubeadm={{ kubeadm_version }}
+      - kubectl={{ kubectl_version }}
+    update_cache: yes

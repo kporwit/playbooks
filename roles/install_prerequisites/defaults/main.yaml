@@ -1,0 +1,5 @@
+---
+user_name: "kporwit"
+kubelet_version: "1.21.9-00"
+kubeadm_version: "1.21.9-00"
+kubectl_version: "1.21.9-00"

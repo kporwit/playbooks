@@ -1,0 +1,14 @@
+---
+- name: install docker and kubeadm to all hosts
+  hosts: all
+  roles:
+    - role: install_prerequisites
+      become: yes
+      vars:
+        user_name: "kporwit"
+        kubelet_version: "1.21.9-00"
+        kubeadm_version: "1.21.9-00"
+        kubectl_version: "1.21.9-00"
+
+
+
