@@ -1,0 +1,26 @@
+---
+- name: Install helm
+  hosts: kubernetesCPNs
+  tasks:
+    - name: install helm prerequisutes
+      become: yes
+      apt:
+        name:
+          - apt-transport-https
+        update_cache: yes
+    - name: remove existing helm key
+      become: yes
+      file:
+        path: /etc/apt/keyrings/helm.gpg
+        state: absent
+    - name: add helm GPG key
+      become: yes
+      shell: curl -fsSL https://baltocdn.com/helm/signing.asc | gpg --dearmor -o /etc/apt/keyrings/helm.gpg
+    - name: set up helm repo
+      become: yes
+      shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+    - name: install helm
+      become: yes
+      apt:
+        name: helm
+        update_cache: yes
